@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Golid Design - Homepage</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
+    <link href="http://fonts.googleapis.com/css?family=Raleway:300,400,800" rel='stylesheet' type='text/css'>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.2/p5.js"></script>
+  </head>
+  <body>
+
+    <!-- STATIC PART OF WEBSITE -->
+
+    <header>
+      <div class="left_content">
+        <figure class="logo">
+          <img src="img/gs_grey_72.png" alt="Golid Design logo" />
+        </figure>
+        <nav>
+          <a href="#">Home</a><a href="#">Blog</a><a href="#">Work</a><a href="#">About</a>
+        </nav>
+      </div>
+      <div class="right_content">
+        <div class="some">
+          <a href="#"><div class=icon_container><img src="img/fblogo.png" alt="F" /></div>
+          </a><a href="#"><div class=icon_container><img src="img/twitlogo.png" alt="T" /></div>
+          </a><a href="#"><div class=icon_container><img src="img/instalogo.png" alt="I" /></div>
+          </a>
+        </div>
+      </div>
+    </header>
+    <section id="main"></section>
+
+    <!-- TEMPLATES -->
+
+    <template id="blog-template">
+      <div class="blog"></div>
+    </template>
+
+    <template id="card-template">
+      <div class="card">
+        <div class="figure"></div>
+        <div class="title"></div>
+        <div class="description"></div>
+      </div>
+    </template>
+
+    <template id="work-template">
+      <div class="work"></div>
+    </template>
+
+    <!-- SCRIPTS -->
+
+    <script type="text/javascript" src="static/bundle.js"></script>
+  </body>
+</html>

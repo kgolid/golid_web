@@ -1,0 +1,15 @@
+{
+  "name": "GolidWeb",
+  "version": "0.0.0",
+  "description": "Me learning P5 etc.",
+  "author": "Kjetil Midtgarden Golid <kjetil.golid@gmail.com>",
+  "scripts": {
+    "build": "browserify js/app.js -o static/bundle.js"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "browserify": "^10.2.6",
+    "watchify": "^3.2.3"
+  }
+}
