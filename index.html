@@ -7,6 +7,7 @@
     <link href="http://fonts.googleapis.com/css?family=Raleway:300,400,800" rel='stylesheet' type='text/css'>
   </head>
   <body>
+
     <!-- STATIC PART OF WEBSITE -->
 
     <header>
@@ -15,7 +16,10 @@
           <img src="img/gs_grey_72.png" alt="Golid Design logo" />
         </figure>
         <nav>
-          <a href="#">Home</a><a href="#">Blog</a><a href="#">Work</a><a href="#">About</a>
+          <p class="nav_item nav_home">Home</p><p
+          class="nav_item nav_blog">Blog</p><p
+          class="nav_item nav_work">Work</p><p
+          class="nav_item nav_about">About<p>
         </nav>
       </div>
       <div class="right_content">
@@ -27,9 +31,13 @@
         </div>
       </div>
     </header>
-    <section id="main"></section>
+    <section class="main"></section>
 
     <!-- TEMPLATES -->
+
+    <template id="home-template">
+      <div class="home"></div>
+    </template>
 
     <template id="blog-template">
       <div class="blog"></div>

@@ -1,94 +1,66 @@
-var p5 = require('p5');
+var home_module = require("./home.js");
+var blog_module = require("./blog.js");
 
-var sketch = function(p) {
+var app = {
+  state: 'init',
+  modules: {
+    home: home_module,
+    blog: blog_module
+  },
+  init: function () {
+    this.cacheDom();
+    this.modules.home.init(this);
+    this.modules.blog.init(this);
+    this.nav_home.onclick = this.handleNavClick.bind(this, 'home');
+    this.nav_blog.onclick = this.handleNavClick.bind(this, 'blog');
+    this.render();
+  },
+  cacheDom: function () {
+    this.logo = document.querySelector('.logo');
+    this.nav_home = document.querySelector('.nav_home');
+    this.nav_blog = document.querySelector('.nav_blog');
+    this.main = document.querySelector('.main');
+  },
+  setState: function (state) {
+    this.state = state;
+  },
+  render: function () {
+    switch (this.state) {
+      case 'init':
+        this.nav_home.classList.add("current");
+        this.modules.home.render();
+        break;
+      case 'home':
+        this.prepareHome();
+        this.modules.home.render();
+        break;
+      case 'blog':
+        this.prepareBlog();
+        this.modules.blog.render();
+        break;
+      default:
+    }
+  },
+  prepareHome: function () {
+    this.nav_blog.classList.remove("current");
+    this.nav_home.classList.add("current");
 
-  var house
-  var max_dim = 400;
+    this.main.removeChild(this.main.querySelector('.blog'));
+  },
+  prepareBlog: function () {
+    this.nav_home.classList.remove("current");
+    this.nav_blog.classList.add("current");
 
-  p.setup = function() {
-    p.createCanvas(500,500);
-    p.background(10,200,155);
-    p.noFill();
-    p.frameRate(2);
-    p.stroke(51);
-
-    house = new House(p.random(max_dim / 2, max_dim), p.random(max_dim / 2, max_dim));
+    this.main.removeChild(this.main.querySelector('.home'));
+  },
+  handleHeaderClick: function () {
+    this.setState('home');
+    this.render();
+  },
+  handleNavClick: function (target) {
+    this.setState(target);
+    this.render();
   }
+}
 
-  p.draw = function() {
-    p.background(10,200,155);
-    house.display_house();
-    if(!house.done){
-      house.build_wall();
-    } else {
-      house = new House(p.random(max_dim / 2, max_dim), p.random(max_dim / 2, max_dim));
-    }
-  }
-
-  function House(dimx, dimy) {
-    this.dim = new p5.Vector(dimx,dimy);
-    this.number_of_rooms = p.random(8,12);
-    this.outer_walls = new Room(this.dim.x, this.dim.y, (p.width-this.dim.x)/2, (p.height-this.dim.y)/2);
-    this.rooms = [];
-    this.rooms.push(this.outer_walls);
-    this.done = false;
-
-    this.build_wall = function() {
-      if (this.rooms.length < this.number_of_rooms){
-        var r = this.pop_biggest_room();
-        this.split_room(r);
-      } else {
-        this.done = true;
-      }
-    }
-
-    this.pop_biggest_room = function() {
-      var biggest = 0;
-      for(var i = 0; i < this.rooms.length; i++){
-        if(this.rooms[i].get_area() > this.rooms[biggest].get_area())
-          biggest = i;
-      }
-      return this.rooms.splice(biggest,1)[0];
-    }
-
-    this.split_room = function(r) {
-      if(r.dim.x > r.dim.y){
-        var f = p.random(r.dim.x/3) + r.dim.x/3;
-        var r1 = new Room(f, r.dim.y, r.pos.x, r.pos.y);
-        var r2 = new Room(r.dim.x - f, r.dim.y, r.pos.x + f, r.pos.y);
-        this.rooms.push(r1);
-        this.rooms.push(r2);
-      } else {
-        var f = p.random(r.dim.y/3) + r.dim.y/3;
-        var r1 = new Room(r.dim.x, f, r.pos.x, r.pos.y);
-        var r2 = new Room(r.dim.x, r.dim.y - f, r.pos.x, r.pos.y + f);
-        this.rooms.push(r1);
-        this.rooms.push(r2);
-      }
-    }
-
-    this.display_house = function() {
-      p.strokeWeight(8);
-      this.outer_walls.display_room();
-      p.strokeWeight(1);
-      for(a in this.rooms)
-        this.rooms[a].display_room();
-    }
-  }
-
-
-  function Room(w, h, x, y) {
-    this.dim = new p5.Vector(w,h);
-    this.pos = new p5.Vector(x,y);
-
-    this.get_area = function(){
-      return this.dim.x * this.dim.y;
-    }
-
-    this.display_room = function(){
-      p.rect(this.pos.x, this.pos.y, this.dim.x, this.dim.y);
-    }
-  }
-};
-
-module.exports = new p5(sketch, "main");
+app.init();

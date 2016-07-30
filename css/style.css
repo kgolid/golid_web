@@ -45,7 +45,7 @@ nav {
   margin-left: 50px;
 }
 
-nav a {
+nav p {
   display:block;
   font-family:'Raleway';
   font-weight:400;
@@ -53,10 +53,11 @@ nav a {
   letter-spacing:3pt;
   text-transform:uppercase;
   padding:4px 0;
+  cursor: pointer;
 }
 
-nav a:hover {
-  color:red;
+nav p:hover {
+  text-decoration:line-through;
 }
 
 .icon_container {
@@ -70,7 +71,24 @@ nav a:hover {
   width:100%;
 }
 
-#main {
+.current {
+  color:red;
+}
+
+.main {
+  position:relative;
+  width:90%;
+  margin:auto;
+}
+
+.card {
+  width: 500px;
+  position:relative;
+  margin:20px;
+  background-color: white;
+}
+
+.card .figure {
   background-color: rgb(10,200,155);
   position:relative;
   width:500px;
