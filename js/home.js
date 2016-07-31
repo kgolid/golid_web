@@ -1,5 +1,5 @@
 var home = {
-  state: 'init',
+  app: null,
   templates: {
     container: document.querySelector('#home-template')
   },

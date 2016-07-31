@@ -11,6 +11,7 @@ var app = {
     this.cacheDom();
     this.modules.home.init(this);
     this.modules.blog.init(this);
+    this.logo.onclick = this.handleHomeClick.bind(this);
     this.nav_home.onclick = this.handleNavClick.bind(this, 'home');
     this.nav_blog.onclick = this.handleNavClick.bind(this, 'blog');
     this.render();
@@ -45,19 +46,26 @@ var app = {
     this.nav_blog.classList.remove("current");
     this.nav_home.classList.add("current");
 
-    this.main.removeChild(this.main.querySelector('.blog'));
+    this.main.removeChild(this.main.querySelector('.section'));
   },
   prepareBlog: function () {
     this.nav_home.classList.remove("current");
     this.nav_blog.classList.add("current");
 
-    this.main.removeChild(this.main.querySelector('.home'));
+    this.main.removeChild(this.main.querySelector('.section'));
   },
-  handleHeaderClick: function () {
+  handleHomeClick: function () {
+    if (this.state == 'blog') {
+      this.modules.blog.stop();
+    }
     this.setState('home');
     this.render();
   },
   handleNavClick: function (target) {
+    if (this.state == 'blog') {
+      this.modules.blog.stop();
+    }
+
     this.setState(target);
     this.render();
   }

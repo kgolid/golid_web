@@ -81,11 +81,11 @@ var sketch = function(p) {
     this.dim = new p5.Vector(w,h);
     this.pos = new p5.Vector(x,y);
 
-    this.get_area = function(){
+    this.get_area = function() {
       return this.dim.x * this.dim.y;
     }
 
-    this.display_room = function(){
+    this.display_room = function() {
       p.rect(this.pos.x, this.pos.y, this.dim.x, this.dim.y);
     }
   }

@@ -12,6 +12,7 @@ var app = {
     this.cacheDom();
     this.modules.home.init(this);
     this.modules.blog.init(this);
+    this.logo.onclick = this.handleHomeClick.bind(this);
     this.nav_home.onclick = this.handleNavClick.bind(this, 'home');
     this.nav_blog.onclick = this.handleNavClick.bind(this, 'blog');
     this.render();
@@ -46,19 +47,26 @@ var app = {
     this.nav_blog.classList.remove("current");
     this.nav_home.classList.add("current");
 
-    this.main.removeChild(this.main.querySelector('.blog'));
+    this.main.removeChild(this.main.querySelector('.section'));
   },
   prepareBlog: function () {
     this.nav_home.classList.remove("current");
     this.nav_blog.classList.add("current");
 
-    this.main.removeChild(this.main.querySelector('.home'));
+    this.main.removeChild(this.main.querySelector('.section'));
   },
-  handleHeaderClick: function () {
+  handleHomeClick: function () {
+    if (this.state == 'blog') {
+      this.modules.blog.stop();
+    }
     this.setState('home');
     this.render();
   },
   handleNavClick: function (target) {
+    if (this.state == 'blog') {
+      this.modules.blog.stop();
+    }
+
     this.setState(target);
     this.render();
   }
@@ -66,12 +74,13 @@ var app = {
 
 app.init();
 
-},{"./blog.js":2,"./home.js":3}],2:[function(require,module,exports){
+},{"./blog.js":2,"./home.js":7}],2:[function(require,module,exports){
 var p5 = require('p5');
-var sketch = require("./sketch.js");
+var sketch_base = require('./card_base.js');
 
 var blog = {
-  state: 'init',
+  app: null,
+  sketches: sketch_base,
   templates: {
     container: document.querySelector('#blog-template'),
     card: document.querySelector('#card-template')
@@ -83,36 +92,291 @@ var blog = {
     var container = this.templates.container.content.cloneNode(true);
     this.app.main.appendChild(container);
 
+    for(var i in this.sketches) {
+      this.renderCard(this.sketches[i]);
+    }
+  },
+  renderCard: function (sketch) {
     var card = this.templates.card.content.cloneNode(true);
-    card.querySelector('.title').innerText = "Sketch numero uno";
-    card.querySelector('.figure').id = "sketch1"
+    card.querySelector('.title').innerText = sketch.title;
+    card.querySelector('.description').innerText = sketch.description;
+    card.querySelector('.figure').id = sketch.figure_name;
     document.querySelector('.blog').appendChild(card);
 
-    new p5(sketch, "sketch1");
+    sketch.figure_object = new p5(sketch.figure, sketch.figure_name);
+  },
+  stop: function () {
+    for(s in this.sketches)
+      this.stopSketch(this.sketches[s]);
+  },
+  stopSketch: function (sketch) {
+    sketch.figure_object.remove();
   }
+
 }
 
 module.exports = blog
 
-},{"./sketch.js":4,"p5":5}],3:[function(require,module,exports){
-var home = {
-  state: 'init',
-  templates: {
-    container: document.querySelector('#home-template')
+},{"./card_base.js":3,"p5":8}],3:[function(require,module,exports){
+var sketch1 = require("./figures/sketch.js");
+var sketch2 = require("./figures/graph_fun.js");
+var sketch3 = require("./figures/layout_box.js");
+
+module.exports = [
+  {
+    id: 1,
+    title: "Blueprint",
+    date: "2016-07-31",
+    description: "Randomly generating partitions of random rectangles.",
+    figure_name: "sketch1",
+    figure: sketch1,
+    figure_object: null
   },
-  init: function (app) {
-    this.app = app;
+  {
+    id: 2,
+    title: "Particle Network",
+    date: "2015-09-01",
+    description: "Particles interacting with each other and the environment",
+    figure_name: "sketch2",
+    figure: sketch2,
+    figure_object: null
   },
-  render: function () {
-    var container = this.templates.container.content.cloneNode(true);
-    container.querySelector('.home').innerText = "Home sweet home!";
-    this.app.main.appendChild(container);
+  {
+    id: 3,
+    title: "Layouts",
+    date: "2015-09-01",
+    description: "Random grid layouts",
+    figure_name: "sketch3",
+    figure: sketch3,
+    figure_object: null
+  }
+];
+
+},{"./figures/graph_fun.js":4,"./figures/layout_box.js":5,"./figures/sketch.js":6}],4:[function(require,module,exports){
+var p5 = require('p5');
+
+var sketch = function (p) {
+
+  var graph;
+  var number_of_nodes = 60;
+
+  p.setup = function () {
+    p.createCanvas(500,500);
+    p.stroke(255,255,255);
+    p.noFill();
+    p.strokeWeight(2);
+
+    graph = new Graph(number_of_nodes);
+    graph.createNodes();
+    graph.createEdges();
+  }
+
+  p.draw = function () {
+    p.background(55,140,155);
+    graph.display();
+    graph.update();
+  }
+
+  function Graph(num) {
+    this.number_of_nodes = num;
+    this.nodes = [];
+    this.edges = [];
+
+    this.createNodes = function () {
+      for (var i = 0; i < this.number_of_nodes; i++)
+        this.nodes.push(new Node( new p5.Vector(p.random(50, p.width-50), p.random(50, p.height-50)), this.nodes ) );
+    }
+
+    this.createEdges = function () {
+      for (var i = 0; i < this.nodes.length; i++) {
+        for (var j = 0; j < this.nodes.length; j++) {
+          if (i != j)
+            this.edges.push( new Edge(this.nodes[i], this.nodes[j]) );
+        }
+      }
+    }
+
+    this.update = function () {
+      for (var n in this.nodes)
+        this.nodes[n].update();
+    }
+
+    this.display = function () {
+      for (var e in this.edges)
+        this.edges[e].display();
+    }
+  }
+
+  function Edge(n1, n2) {
+    this.n1 = n1;
+    this.n2 = n2;
+
+    this.display = function () {
+      if (this.n1.loc.dist(this.n2.loc) < 45) {
+        p.stroke(0,95);
+        p.line(this.n1.loc.x, this.n1.loc.y, this.n2.loc.x, this.n2.loc.y);
+      } else if (this.n1.loc.dist(this.n2.loc) < 100) {
+        p.stroke(0,10);
+        p.line(this.n1.loc.x, this.n1.loc.y, this.n2.loc.x, this.n2.loc.y);
+      }
+    }
+  }
+
+  function Node(loc, nodes) {
+    this.loc = loc;
+    this.vel = new p5.Vector(0, 0);
+    this.acc = new p5.Vector(0, 0);
+
+    this.nodes = nodes;
+
+    this.update = function () {
+      this.calculate_acceleration();
+
+      this.vel.add(this.acc);
+      this.loc.add(this.vel);
+    }
+
+    this.calculate_acceleration = function () {
+      this.accelerate_towards_nearby_nodes(0.2, 100);
+      this.not_too_close(2, 40);
+      this.accelerate_away_from_edge(1);
+      this.add_friction(0.1);
+
+      this.acc.div(50);
+    }
+
+    this.accelerate_towards_nearby_nodes = function ( weight, distance ) {
+      var dir = new p5.Vector(0, 0);
+      for (var n in this.nodes) {
+        if (this.nodes[n] != this && this.loc.dist(this.nodes[n].loc) < distance )
+          dir.add( this.get_direction(this.nodes[n].loc) );
+      }
+      dir.normalize();
+      dir.mult(weight);
+      this.acc.add( dir );
+    }
+
+    this.not_too_close = function ( weight, distance ) {
+      var dir = new p5.Vector(0, 0);
+      for (var n in this.nodes) {
+        if (this.nodes[n] != this && this.loc.dist(this.nodes[n].loc) < distance )
+          dir.add( this.get_direction(this.nodes[n].loc) );
+      }
+      dir.normalize();
+      dir.mult(-weight);
+      this.acc.add( dir );
+    }
+
+    this.accelerate_away_from_edge = function ( weight ) {
+      var center = new p5.Vector(p.width/2, p.height/2);
+      if ( this.loc.dist(center) > 200 ) {
+        var dir = this.get_direction(center);
+        dir.mult(weight);
+        this.acc.add( dir );
+      }
+    }
+
+    this.add_friction = function ( weight ) {
+      var friction = new p5.Vector(this.vel.x, this.vel.y);
+      friction.normalize();
+      friction.mult(-1);
+      friction.mult(weight);
+      this.acc.add(friction);
+    }
+
+    this.get_direction = function( loc ) {
+      var dir = p5.Vector.sub(loc, this.loc);
+      dir.normalize();
+      return dir;
+    }
   }
 }
 
-module.exports = home;
+module.exports = sketch;
 
-},{}],4:[function(require,module,exports){
+},{"p5":8}],5:[function(require,module,exports){
+var p5 = require('p5');
+
+var sketch = function (p) {
+
+  var squares;
+  var box_dim = 100;
+  var frame_width = 8;
+
+  var c;
+
+p.setup = function () {
+  p.createCanvas(500,500);
+  p.smooth();
+  p.frameRate(2);
+  p.background(235,105,40);
+  p.noStroke();
+
+  squares = new Array(16);
+
+  for(var i=0; i < squares.length; i++){
+    squares[i] = new Square((i%4)*120, p.floor(i/4) * 120, box_dim, frame_width);
+  }
+}
+
+p.draw = function () {
+  p.push();
+  p.translate(20,20);
+  for(var s in squares) {
+    squares[s].display();
+  }
+  p.pop();
+
+  c = p.floor(p.random(16));
+  squares[c] = new Square(squares[c].posx, squares[c].posy, box_dim, frame_width);
+}
+
+  function Square(x, y, dim, frame){
+    this.posx = x;
+    this.posy = y;
+    this.dim = dim;
+    this.frame = frame;
+    this.innerDim = dim-frame*2;
+
+    this.col = p.floor(p.random(2,6));
+    this.colDim = this.innerDim/this.col;
+    this.row = p.floor(p.random(2,6));
+    this.rowDim = this.innerDim/this.row;
+
+    this.visible = Array(this.col);
+    for(var i = 0; i < this.visible.length; i++) {
+      this.visible[i] = Array(this.row);
+      for(var j = 0; j < this.visible[i].length; j++) {
+        this.visible[i][j] = p.random(4);
+      }
+    }
+
+
+    this.display = function () {
+      p.push();
+      p.translate(this.posx,this.posy);
+      p.fill(49);
+      p.rect(0,0,this.dim,this.dim);
+
+      for(var i = 0; i < this.visible.length; i++) {
+        for(var j = 0; j < this.visible[i].length; j++)
+          if(this.visible[i][j] > 1) this.drawBlock(i,j);
+      }
+      p.pop();
+    }
+
+    this.drawBlock = function (i, j){
+      var xpos = this.frame + i * this.colDim ;
+      var ypos = this.frame + j * this.rowDim ;
+      p.fill(235,105,40);
+      p.rect(xpos + 1, ypos + 1, this.colDim - 1, this.rowDim - 1);
+    }
+  }
+}
+
+module.exports = sketch;
+
+},{"p5":8}],6:[function(require,module,exports){
 var p5 = require('p5');
 
 var sketch = function(p) {
@@ -196,11 +460,11 @@ var sketch = function(p) {
     this.dim = new p5.Vector(w,h);
     this.pos = new p5.Vector(x,y);
 
-    this.get_area = function(){
+    this.get_area = function() {
       return this.dim.x * this.dim.y;
     }
 
-    this.display_room = function(){
+    this.display_room = function() {
       p.rect(this.pos.x, this.pos.y, this.dim.x, this.dim.y);
     }
   }
@@ -208,7 +472,25 @@ var sketch = function(p) {
 
 module.exports = sketch;
 
-},{"p5":5}],5:[function(require,module,exports){
+},{"p5":8}],7:[function(require,module,exports){
+var home = {
+  app: null,
+  templates: {
+    container: document.querySelector('#home-template')
+  },
+  init: function (app) {
+    this.app = app;
+  },
+  render: function () {
+    var container = this.templates.container.content.cloneNode(true);
+    container.querySelector('.home').innerText = "Home sweet home!";
+    this.app.main.appendChild(container);
+  }
+}
+
+module.exports = home;
+
+},{}],8:[function(require,module,exports){
 (function (global){
 /*! p5.js v0.5.2 June 17, 2016 */
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.p5 = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
