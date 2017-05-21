@@ -1,6 +1,7 @@
 var sketch1 = require("./figures/sketch.js");
 var sketch2 = require("./figures/graph_fun.js");
 var sketch3 = require("./figures/layout_box.js");
+var sketch4 = require("./figures/perlin_flow.js");
 
 module.exports = [
   {

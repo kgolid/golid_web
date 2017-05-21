@@ -74,7 +74,7 @@ var app = {
 
 app.init();
 
-},{"./blog.js":2,"./home.js":7}],2:[function(require,module,exports){
+},{"./blog.js":2,"./home.js":8}],2:[function(require,module,exports){
 var p5 = require('p5');
 var sketch_base = require('./card_base.js');
 
@@ -117,10 +117,11 @@ var blog = {
 
 module.exports = blog
 
-},{"./card_base.js":3,"p5":8}],3:[function(require,module,exports){
+},{"./card_base.js":3,"p5":9}],3:[function(require,module,exports){
 var sketch1 = require("./figures/sketch.js");
 var sketch2 = require("./figures/graph_fun.js");
 var sketch3 = require("./figures/layout_box.js");
+var sketch4 = require("./figures/perlin_flow.js");
 
 module.exports = [
   {
@@ -152,7 +153,7 @@ module.exports = [
   }
 ];
 
-},{"./figures/graph_fun.js":4,"./figures/layout_box.js":5,"./figures/sketch.js":6}],4:[function(require,module,exports){
+},{"./figures/graph_fun.js":4,"./figures/layout_box.js":5,"./figures/perlin_flow.js":6,"./figures/sketch.js":7}],4:[function(require,module,exports){
 var p5 = require('p5');
 
 var sketch = function (p) {
@@ -294,7 +295,7 @@ var sketch = function (p) {
 
 module.exports = sketch;
 
-},{"p5":8}],5:[function(require,module,exports){
+},{"p5":9}],5:[function(require,module,exports){
 var p5 = require('p5');
 
 var sketch = function (p) {
@@ -376,7 +377,71 @@ p.draw = function () {
 
 module.exports = sketch;
 
-},{"p5":8}],6:[function(require,module,exports){
+},{"p5":9}],6:[function(require,module,exports){
+var p5 = require('p5');
+
+var sketch = function (p) {
+  const w = 500;
+  const h = 500;
+  let t = 0;
+  let n = 80;
+  let particles = [];
+
+  p.setup = function() {
+      p.createCanvas(w,h);
+      p.background(230,230,230);
+      p.stroke(0,25);
+      p.smooth();
+
+      for(var i=0; i < n; i++) {
+        particles.push(
+          {
+            pos: p.createVector(p.random(w), p.random(h)),
+            vel: p.createVector(0,0),
+            seed: i * 10000
+          }
+        )
+      }
+  }
+
+  p.draw = function() {
+    particles.forEach( function(prtcl) {
+      display(prtcl.pos, prtcl.vel);
+      update(prtcl.pos, prtcl.vel, prtcl.seed);
+    });
+
+    t+= 0.002;
+  }
+
+  let display = function(pos, vel) {
+    p.line(pos.x, pos.y, (pos.x + vel.x), (pos.y + vel.y));
+    //p.point(pos.x, pos.y);
+  }
+
+  let update = function(pos, vel, seed) {
+    pos.x = mod((pos.x + vel.x), w);
+    pos.y = mod((pos.y + vel.y), h);
+
+    var r = p5.Vector.fromAngle(p.noise(seed + t) * p.TWO_PI);
+    vel.x = r.x;
+    vel.y = r.y;
+
+    vel.add(flow(pos)).mult(3);
+  }
+
+  let flow = function(pos) {
+    let r = p.noise(pos.x / 100, pos.y / 100) * p.TWO_PI;
+    return p5.Vector.fromAngle(r).mult(2);
+  }
+
+  let mod = function (x, n) {
+    return ((x % n) + n ) % n;
+  }
+}
+
+module.exports = sketch;
+
+},{"p5":9}],7:[function(require,module,exports){
 var p5 = require('p5');
 
 var sketch = function(p) {
@@ -472,7 +537,7 @@ var sketch = function(p) {
 
 module.exports = sketch;
 
-},{"p5":8}],7:[function(require,module,exports){
+},{"p5":9}],8:[function(require,module,exports){
 var home = {
   app: null,
   templates: {
@@ -490,7 +555,7 @@ var home = {
 
 module.exports = home;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 (function (global){
 /*! p5.js v0.5.2 June 17, 2016 */
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.p5 = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
