@@ -4,6 +4,7 @@
   "description": "Me learning P5 etc.",
   "author": "Kjetil Midtgarden Golid <kjetil.golid@gmail.com>",
   "scripts": {
+    "start": "node js/app.js",
     "build": "browserify js/app.js -o static/bundle.js"
   },
   "dependencies": {
