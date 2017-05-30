@@ -13,6 +13,7 @@
     "browserify": "^10.2.6",
     "watchify": "^3.2.3"
   },
+  "main": "js/app.js",
   "keywords": [
     "p5"
   ],
